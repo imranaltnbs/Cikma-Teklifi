@@ -1,1 +1,340 @@
-# Cikma-Teklifi
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çıkma Teklifi 😊</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ff9a9e, #fecfef);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 400px;
+            position: relative;
+        }
+
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .evet { 
+            background: #ff6b6b; 
+            color: white; 
+        }
+
+        .evet:hover { 
+            background: #ff5252; 
+            transform: scale(1.05); 
+        }
+
+        .hayir { 
+            background: #4ecdc4; 
+            color: white;
+        }
+
+        .hayir:hover { 
+            background: #45b7aa; 
+        }
+
+        .sonuc { 
+            margin-top: 20px; 
+            font-size: 18px; 
+            color: #333; 
+            min-height: 20px; 
+        }
+
+        /* Yüzük kutusu animasyonu - Siyah ve gri tonlar */
+        .ring-box-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 10;
+        }
+
+        .ring-box {
+            width: 120px;
+            height: 80px;
+            background: #333; /* Koyu gri kutu */
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .ring-box-lid {
+            width: 100%;
+            height: 50%;
+            background: #222; /* Siyah kapak */
+            position: absolute;
+            top: 0;
+            border-radius: 10px 10px 0 0;
+            transform-origin: top;
+            transition: transform 1s ease 1s;
+        }
+
+        .ring-box.open .ring-box-lid {
+            transform: rotateX(-110deg);
+        }
+
+        .tek-tas-ring {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 1s ease 2s; /* Orta hız: 1 saniye */
+            z-index: 5;
+            max-width: 60px; /* Resim boyutu aşılmaz */
+            max-height: 60px; /* Resim boyutu aşılmaz */
+            object-fit: contain; /* Oran korunsun */
+        }
+
+        .ring-box.open .tek-tas-ring {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Footer için Instagram */
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #ff6b6b;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .footer a:hover {
+            color: #ff5252;
+        }
+
+        .footer .fa-instagram {
+            font-size: 18px;
+        }
+
+        @keyframes celebrate {
+            0% { transform: rotate(0deg) scale(1); }
+            100% { transform: rotate(360deg) scale(1.1); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hey, seninle çıkmak istiyorum! 💕</h1>
+        <p>Ne dersin?😅</p>
+        <button id="evet" class="btn evet">Evet! ❤️</button>
+        <button id="hayir" class="btn hayir">Hayır... 😔</button>
+        <div id="sonuc" class="sonuc"></div>
+        <div class="ring-box-container" id="ringBoxContainer">
+            <div class="ring-box" id="ringBox">
+                <div class="ring-box-lid"></div>
+                <img src="yüzük.png" alt="Tek Taş Yüzük" class="tek-tas-ring">
+            </div>
+        </div>
+        <div class="footer">
+            <a href="https://www.instagram.com/muhammed_altun27/?utm_source=ig_web_button_share_sheet" target="_blank">
+                <i class="fab fa-instagram"></i> muhammed_altun27_ Tarafından Yapıldı
+            </a>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const evetBtn = document.getElementById('evet');
+            const hayirBtn = document.getElementById('hayir');
+            const sonucDiv = document.getElementById('sonuc');
+            const container = document.querySelector('.container');
+            const ringBoxContainer = document.getElementById('ringBoxContainer');
+            const ringBox = document.getElementById('ringBox');
+
+            // 100 farklı esprili, gündem ve romantik mesaj
+            const kacmaMesajlari = [
+                'Bak, buton bile kaçıyor! 😅 Hadi, Evet de!',
+                'Hayır deme, Netflix gecesi yaparız! 🍿',
+                'Evet dersen, kahve benden! ☕',
+                'Buton sabit, ama kalbim seninle atıyor! 😍',
+                'Hadi ama, bu aşk Survivor gibi epik olur! 🏝️',
+                'Hayır deme, yoksa TikTok’ta challenge başlatırım! 😜',
+                'Evet de, birlikte Instagram filtresi seçeriz! 📸',
+                'Seninle çıkmak, 5G hızında bir bağ! 🚀',
+                'Hayır dersen, kalbim story’de kaybolur! 😢',
+                'Evet de, reels çekip viral oluruz! 🎥',
+                'Buton inatçı, ama sen tatlısın! 😊 Evet?',
+                'Hayır deme, yoksa WhatsApp durumum kırgın emoji olur! 😔',
+                'Evet dersen, her gün kahvaltı hazırlarım! 🥐',
+                'Bu teklif kaçmaz, Black Friday indirimi değil! 😅',
+                'Hayır deme, kalbim trend topic olur! 📈',
+                'Evet de, birlikte Spotify listesi yaparız! 🎶',
+                'Buton sabit, ama aşkım limitsiz! 💖',
+                'Hayır deme, yoksa DM’lerime kapanırım! 😢',
+                'Evet dersen, romantik bir piknik garanti! 🧺',
+                'Hadi ama, seninle hayat bir Netflix dizisi! 🎬',
+                'Hayır deme, bu teklif bir FOMO! 😜',
+                'Evet de, her mevsim yaz gibi olur! ☀️',
+                'Buton bile pes etmedi, sen de etme! 😄 Evet?',
+                'Hayır deme, kalbim Wi-Fi’siz kalır! 📡',
+                'Evet dersen, sana her gün kahve ısmarlarım! ☕',
+                'Bu aşk bir Instagram post’u kadar güzel! 📷',
+                'Hayır deme, yoksa story’mde ağlarım! 😭',
+                'Evet de, birlikte gün batımı izleriz! 🌅',
+                'Buton inat etse de sen etme! 😇 Evet?',
+                'Hayır deme, bu teklif bir viral video! 🎥',
+                'Evet dersen, her anımız bir trend! 📈',
+                'Hadi ama, seninle hayat bir festival! 🎉',
+                'Hayır deme, kalbim meme olur! 😅',
+                'Evet de, birlikte kahkahalarla dolalım! 😂',
+                'Buton sabit, ama aşkım patlıyor! 💥',
+                'Hayır deme, yoksa playlist’im hüzünlü olur! 🎵',
+                'Evet dersen, her gün macera garanti! 🗺️',
+                'Bu teklif bir hit şarkı, kaçırma! 🎤',
+                'Hayır deme, kalbim live yayın keser! 😢',
+                'Evet de, seninle dünya turu yaparız! 🌍',
+                'Buton kaçmıyor, sen de kaçma! 😊 Evet?',
+                'Hayır deme, bu aşk bir blockbuster film! 🎬',
+                'Evet dersen, her anımız bir selfie! 🤳',
+                'Hadi ama, seninle hayat bir stand-up şov! 😜',
+                'Hayır deme, yoksa Insta’da unfollow yerim! 😅',
+                'Evet de, birlikte dans videosu çekeriz! 💃',
+                'Buton sabit, ama kalbim seninle dans ediyor! 💖',
+                'Hayır deme, bu teklif bir Instagram kare! 📸',
+                'Evet dersen, her gün sürpriz benden! 🎁',
+                'Hadi ama, seninle hayat bir karnaval! 🎡',
+                'Hayır deme, kalbim reels’de kaybolur! 😢',
+                'Evet de, birlikte en güzel anları yaşarız! 🌟',
+                'Buton inatçı, ama sen tatlısın! 😄 Evet?',
+                'Hayır deme, bu aşk bir Twitter trendi! 🐦',
+                'Evet dersen, her anımız bir highlight! ✨',
+                'Hadi ama, seninle hayat bir reality show! 📺',
+                'Hayır deme, yoksa emoji’m 😭 olur!',
+                'Evet de, birlikte kahve dükkanı gezeriz! ☕',
+                'Buton sabit, ama aşkım her yerde! 💕',
+                'Hayır deme, bu teklif bir YouTube vlog’u! 🎥',
+                'Evet dersen, her gün bir macera! 🏄',
+                'Hadi ama, seninle hayat bir romantik komedi! 😍',
+                'Hayır deme, kalbim live’da donar! 😢',
+                'Evet de, birlikte en güzel story’leri yaparız! 📷',
+                'Buton kaçmıyor, sen de kaçma! 😜 Evet?',
+                'Hayır deme, bu aşk bir viral challenge! 😅',
+                'Evet dersen, her anımız bir Instagram post’u! 📸',
+                'Hadi ama, seninle hayat bir festival sahnesi! 🎤',
+                'Hayır deme, yoksa DM’lerim kapanır! 😭',
+                'Evet de, birlikte gün batımı kovalayalım! 🌅',
+                'Buton sabit, ama aşkım limitsiz! 😄 Evet?',
+                'Hayır deme, bu teklif bir TikTok dansı! 💃',
+                'Evet dersen, her gün bir sürpriz garanti! 🎉',
+                'Hadi ama, seninle hayat bir yaz partisi! 🏖️',
+                'Hayır deme, kalbim story’de kaybolur! 😢',
+                'Evet de, birlikte en güzel anları biriktirelim! 🌟',
+                'Buton inat etse de sen etme! 😇 Evet?',
+                'Hayır deme, bu aşk bir Instagram filtresi! 😜',
+                'Evet dersen, her anımız bir macera! 🗺️',
+                'Hadi ama, seninle hayat bir pop şarkısı! 🎶',
+                'Hayır deme, yoksa playlist’im hüzünlü olur! 😭',
+                'Evet de, birlikte en güzel kahveleri içeriz! ☕',
+                'Buton sabit, ama aşkım patlıyor! 💥',
+                'Hayır deme, bu teklif bir viral reels! 🎥',
+                'Evet dersen, her anımız bir trend! 📈',
+                'Hadi ama, seninle hayat bir karnaval! 🎡',
+                'Hayır deme, kalbim emoji seline döner! 😢',
+                'Evet de, birlikte dans ederiz! 💃🕺',
+                'Buton sabit, ama kalbim seninle atıyor! 💖',
+                'Hayır deme, bu aşk bir Netflix maratonu! 🍿',
+                'Evet dersen, her gün bir sürpriz benden! 🎁',
+                'Hadi ama, seninle hayat bir stand-up şov! 😂',
+                'Hayır deme, yoksa story’m hüzünlü biter! 😭',
+                'Evet de, birlikte en güzel anları yaşarız! 🌟',
+                'Buton inatçı, ama sen tatlısın! 😊 Evet?',
+                'Hayır deme, bu teklif bir Instagram kare! 📷',
+                'Evet dersen, her anımız bir highlight! ✨',
+                'Hadi ama, seninle hayat bir festival! 🎉',
+                'Hayır deme, kalbim live’da kesilir! 😢',
+                'Evet de, birlikte dünya turu yaparız! 🌍'
+            ];
+
+            // Evet butonu
+            evetBtn.addEventListener('click', function() {
+                // Mesaj ve butonları gizle
+                sonucDiv.innerHTML = '';
+                evetBtn.style.display = 'none';
+                hayirBtn.style.display = 'none';
+                
+                // Yüzük kutusunu göster
+                ringBoxContainer.style.display = 'block';
+                
+                // 1 saniye sonra kutuyu aç ve yüzüğü göster
+                setTimeout(() => {
+                    ringBox.classList.add('open');
+                    container.classList.add('celebrate');
+                    
+                    // Konfeti efekti
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                    
+                    // Kutu açıldıktan sonra mesaj
+                    setTimeout(() => {
+                        sonucDiv.innerHTML = 'Harika seçim! bu yüzük sesin için 💍';
+                        sonucDiv.style.color = 'green';
+                    }, 1500);
+                }, 1000);
+            });
+
+            // Hayır butonu - Sadece tıklayınca mesaj göster
+            hayirBtn.addEventListener('click', function(e) {
+                // Rastgele mesaj seç
+                const randomMesaj = kacmaMesajlari[Math.floor(Math.random() * kacmaMesajlari.length)];
+                sonucDiv.innerHTML = randomMesaj;
+                sonucDiv.style.color = 'red';
+            });
+        });
+    </script>
+</body>
+</html>
